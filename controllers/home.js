@@ -1,3 +1,4 @@
+const { isUser } = require("../middleware/guards");
 const { getPosts, getPostById } = require("../services/post");
 const { postViewModel } = require("../util/mappers");
 
@@ -15,6 +16,26 @@ router.get("/catalog", async (req, res) => {
 router.get("/catalog/:id", async (req, res) => {
     const id = req.params.id;
     const post = postViewModel(await getPostById(id));
+
+    if (req.session.user) {
+        post.hasUser = true;
+
+        if (req.session.user._id === post.author._id) {
+            post.isAuthor = true;
+        }
+    }
+
     res.render("details", { title: post.title, post });
 });
+
+router.get("/edit/:id", isUser(), async (req, res) => {
+    const id = req.params.id;
+    const post = postViewModel(await getPostById(id));
+
+    if (req.session.user._id != post.author._id) {
+        return res.redirect("/login");
+    }
+    res.render("edit", { title: post.title, post });
+});
+
 module.exports = router;

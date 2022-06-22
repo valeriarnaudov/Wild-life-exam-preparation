@@ -20,7 +20,7 @@ const userSchema = new Schema({
     lastName: {
         type: String,
         required: [true, "Last name is required"],
-        minlength: [5, "Last name must be at least 3 characters"],
+        minlength: [5, "Last name must be at least 5 characters"],
         validate: {
             validator: function (v) {
                 return NAME_PATTERN.test(v);

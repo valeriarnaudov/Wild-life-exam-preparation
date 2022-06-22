@@ -1,5 +1,5 @@
 const { isUser } = require("../middleware/guards");
-const { createPost, updatePost } = require("../services/post");
+const { createPost, updatePost, vote } = require("../services/post");
 const { mapErrors } = require("../util/mappers");
 
 const router = require("express").Router();
@@ -91,8 +91,25 @@ router.get("/delete/:id", isUser, async (req, res) => {
     } catch (error) {
         const errors = mapErrors(error);
         post._id = id;
-        res.render("/catalog/" + id, {
+        res.render("details", {
             title: existing.title,
+            errors,
+        });
+    }
+});
+
+router.get("/vote/:id/:type", isUser(), async (req, res) => {
+    const id = req.params.id;
+    const value = req.params.type == "upvote" ? 1 : -1;
+
+    try {
+        await vote(id, req.session.user._id, value);
+        res.redirect("/catalog/" + id);
+    } catch (error) {
+        const errors = mapErrors(error);
+        post._id = id;
+        res.render("details", {
+            title: "Post Details",
             errors,
         });
     }

@@ -33,8 +33,26 @@ router.post("/create", isUser(), async (req, res) => {
     }
 });
 
+router.get("/edit/:id", isUser(), async (req, res) => {
+    const id = req.params.id;
+    const post = postViewModel(await getPostById(id));
+
+    if (req.session.user._id != post.author._id) {
+        return res.redirect("/login");
+    }
+
+    res.render("edit", { title: post.title, post });
+});
+
 router.post("/edit/:id", isUser(), async (req, res) => {
     const id = req.params._id;
+
+    const existing = postViewModel(await getPostById(id));
+
+    if (req.session.user._id != existing.author._id) {
+        return res.redirect("/login");
+    }
+
     const post = {
         title: req.body.title,
         keyword: req.body.keyword,
@@ -54,6 +72,27 @@ router.post("/edit/:id", isUser(), async (req, res) => {
         res.render("edit", {
             title: "Edit Post",
             post,
+            errors,
+        });
+    }
+});
+
+router.get("/delete/:id", isUser, async (req, res) => {
+    const id = req.params.id;
+    const existing = postViewModel(await getPostById(id));
+
+    if (req.session.user._id != existing.author._id) {
+        return res.redirect("/login");
+    }
+
+    try {
+        await deletePost(id);
+        res.redirect("/catalog");
+    } catch (error) {
+        const errors = mapErrors(error);
+        post._id = id;
+        res.render("/catalog/" + id, {
+            title: existing.title,
             errors,
         });
     }

@@ -11,7 +11,7 @@ async function getPosts() {
 }
 
 async function getPostById(id) {
-    return Post.findById(id).populate("author", "firstName lastName");
+    return Post.findById(id).populate("author", "firstName lastName").populate('votes', 'email');
 }
 
 async function updatePost(id, post) {

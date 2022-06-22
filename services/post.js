@@ -11,7 +11,9 @@ async function getPosts() {
 }
 
 async function getPostById(id) {
-    return Post.findById(id).populate("author", "firstName lastName").populate('votes', 'email');
+    return Post.findById(id)
+        .populate("author", "firstName lastName")
+        .populate("votes", "email");
 }
 
 async function updatePost(id, post) {
@@ -43,6 +45,10 @@ async function vote(postId, userId, value) {
     await post.save();
 }
 
+async function getPostsByAuthor(userId) {
+    return Post.find({ author: userId }).populate("author", "firstName lastName");
+}
+
 module.exports = {
     createPost,
     getPosts,
@@ -50,4 +56,5 @@ module.exports = {
     updatePost,
     deletePost,
     vote,
+    getPostsByAuthor,
 };
